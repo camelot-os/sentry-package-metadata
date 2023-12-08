@@ -5,6 +5,7 @@
 
 import json
 import os
+import sys
 from subprocess import run
 
 
@@ -22,6 +23,32 @@ def meson_package_info():
 
 def meson_scan_dependencies():
 	return json.loads(meson_introspect("--scan-dependencies", os.path.join(PACKAGE_SOURCE_DIR, "meson.build")))
+
+def parse_dotconfig():
+	config = dict()
+	with open(sys.argv[1], "r") as config:
+		for line in config.readlines():
+			if line.startswith("#"):
+				continue
+			key, value = line.split("=")
+			value = True if value == "y" else value
+			config[key] = value
+	return config
+
+
+def task_metadata(config):
+	task_metadata = dict()
+	capabilities = list()
+	for key, value in config.items():
+		if key.startswith('CONFIG_TASK'):
+			task_metadata[key[len('CONFIG_TASK'):].lower()] = str(value).lower()
+
+		if key.startswith('CONFIG_CAP'):
+			capabilities.append(key[len('CONFIG_CAP'):].lower())
+
+	task_metadata["capabilities"] = capabilities
+	return task_metadata
+
 
 
 package_info = meson_package_info()
@@ -51,6 +78,10 @@ for dep in package_info["subprojects"]:
 		shield_found = True
 
 assert shield_found, "libshield dependency not found"
+
+config = parse_dotconfig()
+package_metadata["task"] = task_metadata(config)
+
 
 with open(os.path.join(PACKAGE_BUILD_DIR, "package-metadata.json"), "w") as out:
 	out.write("--package-metadata='")

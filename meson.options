@@ -1,2 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 # SPDX-FileCopyrightText: 2023 Ledger SAS
+
+option('with_build_id', type: 'boolean', value: true, description: 'Add GNU build unique ID to elf .note section')
+
+option('with_task_metadata', type: 'boolean', value: true,
+description: 'Add an extra section Outpost task metadata .note.package section' +
+'This requires a config file with TASK config')
+
+option('config', type: 'string', description: 'Configuration file to use', value: '', yield: true)
