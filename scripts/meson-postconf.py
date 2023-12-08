@@ -26,8 +26,8 @@ def meson_scan_dependencies():
 
 def parse_dotconfig():
 	config = dict()
-	with open(sys.argv[1], "r") as config:
-		for line in config.readlines():
+	with open(sys.argv[1], "r") as dotconfig:
+		for line in dotconfig.readlines():
 			if line.startswith("#"):
 				continue
 			key, value = line.split("=")
