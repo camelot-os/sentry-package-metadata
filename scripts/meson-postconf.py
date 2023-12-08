@@ -28,7 +28,8 @@ def parse_dotconfig():
 	config = dict()
 	with open(sys.argv[1], "r") as dotconfig:
 		for line in dotconfig.readlines():
-			if line.startswith("#"):
+			line = line.strip()
+			if len(line) == 0 or line.startswith("#"):
 				continue
 			key, value = line.split("=")
 			value = True if value == "y" else value
