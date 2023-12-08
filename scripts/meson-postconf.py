@@ -31,7 +31,7 @@ def parse_dotconfig():
 			line = line.strip()
 			if len(line) == 0 or line.startswith("#"):
 				continue
-			key, value = line.split("=")
+			key, value = line.split("=", maxsplit=1)
 			value = True if value == "y" else value
 			config[key] = value
 	return config
@@ -41,11 +41,11 @@ def task_metadata(config):
 	task_metadata = dict()
 	capabilities = list()
 	for key, value in config.items():
-		if key.startswith('CONFIG_TASK'):
-			task_metadata[key[len('CONFIG_TASK'):].lower()] = str(value).lower()
+		if key.startswith('CONFIG_TASK_'):
+			task_metadata[key[len('CONFIG_TASK_'):].lower()] = str(value).lower()
 
-		if key.startswith('CONFIG_CAP'):
-			capabilities.append(key[len('CONFIG_CAP'):].lower())
+		if key.startswith('CONFIG_CAP_'):
+			capabilities.append(key[len('CONFIG_CAP_'):].lower())
 
 	task_metadata["capabilities"] = capabilities
 	return task_metadata
@@ -79,6 +79,7 @@ for dep in package_info["subprojects"]:
 		shield_found = True
 
 assert shield_found, "libshield dependency not found"
+
 
 config = parse_dotconfig()
 package_metadata["task"] = task_metadata(config)
