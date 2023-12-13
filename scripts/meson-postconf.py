@@ -22,7 +22,7 @@ def meson_package_info():
 
 
 def meson_scan_dependencies():
-	return json.loads(meson_introspect("--scan-dependencies", os.path.join(PACKAGE_SOURCE_DIR, "meson.build")))
+	return json.loads(meson_introspect("--dependencies", PACKAGE_BUILD_DIR))
 
 def parse_dotconfig():
 	config = dict()
