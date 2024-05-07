@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2023 Ledger SAS
+# SPDX-FileCopyrightText: 2023-2024 Ledger SAS
 
 project(
     'package-metadata',
@@ -16,28 +16,38 @@ if not meson.is_subproject()
 error('Use this as subproject only')
 endif
 
-package_metadata_link_args = ['-Xlinker', '@package-metadata.json']
-package_metadata_postconf_script_args = []
-
-# Note that this will fail if top level project does not use Kconfig
-# The lack of top level kconfig is mandatory otherwise, but, as long as this is
-# pointless to use this project as top level project, wa can use kconfig subproject
-# without defining our own Kconfig
+# Note that this will fail if top level project does not use Kconfig nor DTS
+# Use meson recipe only for meson top level package
+# For other buildsystem, use the correct recipe (TBD).
 if get_option('with_task_metadata')
 kconfig_proj = subproject('kconfig')
-kconfig_dotconfig = kconfig_proj.get_variable('kconfig_dotconfig')
-# We made direct usage of dotconfig here as this script is ran in postconf,
-# thus, the config file exists and it is up to date
-package_metadata_postconf_script_args += kconfig_dotconfig
+kconfig_json = kconfig_proj.get_variable('kconfig_json')
+devicetree_proj = subproject('devicetree')
+dts = devicetree_proj.get_variable('devicetree_dtsd')
+
+gen_package_metadata = find_program('scripts/gen-package-metadata.py')
+
+package_metadata = custom_target(
+    input: [kconfig_json, dts],
+    output: 'package-metadata.json',
+    command: [
+        gen_package_metadata,
+        '--build-root=@BUILD_ROOT@',
+        '--source-root=@SOURCE_ROOT@',
+        '--config=@INPUT0@',
+        '--dts=@INPUT1@',
+        '@OUTPUT@'
+    ],
+)
+
+package_metadata_link_args = ['-Xlinker', '@' + package_metadata.full_path()]
 endif
 
 if get_option('with_build_id')
     package_metadata_link_args += ['-Xlinker', '--build-id' ]
 endif
 
-package_metadata_postconfig = find_program('scripts/meson-postconf.py')
-meson.add_postconf_script(package_metadata_postconfig, package_metadata_postconf_script_args)
-
 package_metadata_dep = declare_dependency(
     link_args: package_metadata_link_args,
+    sources: package_metadata,
 )
