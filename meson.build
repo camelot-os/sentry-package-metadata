@@ -22,20 +22,29 @@ endif
 if get_option('with_task_metadata')
 kconfig_proj = subproject('kconfig')
 kconfig_json = kconfig_proj.get_variable('kconfig_json')
-devicetree_proj = subproject('devicetree')
-dts = devicetree_proj.get_variable('devicetree_dtsd')
+
+# default dts fallback
+dtsopt = []
+metadata_input = [kconfig_json]
+
+if get_option('with_dts')
+    devicetree_proj = subproject('devicetree')
+    dts = devicetree_proj.get_variable('devicetree_dtsd')
+    dtsopt += '--dts=@INPUT1@'
+    metadata_input += dts
+endif
 
 gen_package_metadata = find_program('scripts/gen-package-metadata.py')
 
 package_metadata = custom_target(
-    input: [kconfig_json, dts],
+    input: metadata_input,
     output: 'package-metadata.json',
     command: [
         gen_package_metadata,
         '--build-root=@BUILD_ROOT@',
         '--source-root=@SOURCE_ROOT@',
         '--config=@INPUT0@',
-        '--dts=@INPUT1@',
+        dtsopt,
         '@OUTPUT@'
     ],
 )
