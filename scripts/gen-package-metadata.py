@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import sys
 from subprocess import run
-from typing import Any
+from typing import Any,Optional
 
 from pyledger.devicetree_parser import Dts, tests as dts_test
 
@@ -23,7 +23,7 @@ def meson_scan_dependencies(build_dir: Path) -> Any:
     return json.loads(meson_introspect("--dependencies", str(build_dir)))
 
 
-def task_metadata(config: dict, dts: Dts) -> dict:
+def task_metadata(config: dict, dts: Optional[Dts]) -> dict:
     task_metadata = dict()
     capabilities = list()
     for key, value in config.items():
@@ -42,14 +42,15 @@ def task_metadata(config: dict, dts: Dts) -> dict:
 
     task_label = int(config["CONFIG_TASK_LABEL"], base=16)
     # Device id is DTS active node list index starting from 0
-    for dev_id, dev in enumerate(dts.get_active_nodes(), start=0):
-        if dts_test.is_owned_by(dev, task_label):
-            task_metadata["devs"].append(dev_id)
+    if dts is not None:
+        for dev_id, dev in enumerate(dts.get_active_nodes(), start=0):
+            if dts_test.is_owned_by(dev, task_label):
+                task_metadata["devs"].append(dev_id)
 
     return task_metadata
 
 
-def main(build_root: Path, source_root: Path, config: dict, dts: Dts, output: Path) -> None:
+def main(build_root: Path, source_root: Path, config: dict, dts: Optional[Dts], output: Path) -> None:
     package_info = meson_package_info(build_root)
     package_dependencies = meson_scan_dependencies(build_root)
 
@@ -103,13 +104,14 @@ if __name__ == "__main__":
     assert args.build_root.resolve(strict=True).is_dir()
     assert args.source_root.resolve(strict=True).is_dir()
     assert args.config.resolve(strict=True).exists()
-    assert args.dts.resolve(strict=True).exists()
+    if args.dts is not None:
+        assert args.dts.resolve(strict=True).exists()
 
     with args.config.open("r") as config:
         main(
             build_root=args.build_root,
             source_root=args.source_root,
             config=json.load(config),
-            dts=Dts(args.dts),
+            dts=Dts(args.dts) if args.dts is not None else None,
             output=args.output,
         )
