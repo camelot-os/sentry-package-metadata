@@ -9,7 +9,12 @@ import sys
 from subprocess import run
 from typing import Any,Optional
 
-from pyledger.devicetree_parser import Dts, tests as dts_test
+# XXX: To Be Removed once dts_utils publicly available
+try:
+    from dts_utils import Dts, tests as dts_test
+except ModuleNotFoundError:
+    from pyledger.devicetree_parser import Dts, tests as dts_test
+
 
 def meson_introspect(*args):
     return run(["meson", "introspect", *args], capture_output=True, check=True).stdout.strip()
