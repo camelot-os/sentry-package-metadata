@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# SPDX-FileCopyrightText: 2024 Ledger SAS
+
+[package]
+name = "outpost_metadata"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+[dependencies]
+kconfig_import = "*"
+cargo_metadata = "0.18.1"
+serde_json = "~1"
