@@ -55,10 +55,9 @@ fn task_metadata(config: Option<&str>, _dts: Option<&str>) -> Value {
             // TODO: change to boolean here and in python code.
             metadata[k.to_lowercase()] = match value {
                 "y" => json!("1"),
-                 _  => json!(value),
+                _ => json!(value),
             };
-        }
-        else if let Some(k) = key.strip_prefix("CONFIG_CAP_") {
+        } else if let Some(k) = key.strip_prefix("CONFIG_CAP_") {
             // XXX:
             //  can't add item in array with index_mut (i.e. capabilities[I])
             //  so we have to borrow mutable ref to array (underlying type is Vec<Value>).
@@ -80,10 +79,9 @@ pub fn gen_package_metadata(
     name: &str,
     introspect: cargo_metadata::Metadata,
     config: Option<&str>,
-    _dts: Option<&str>
+    _dts: Option<&str>,
 ) -> Result<(), Error> {
     let mut package_metadata = json!({"type": "outpost application", "os": "outpost"});
-    let name = name;
     let version = get_version(name, &introspect).unwrap();
     let uapi_version = get_version("uapi", &introspect);
     let shield_version = get_version("shield", &introspect);
@@ -116,7 +114,7 @@ pub fn gen_package_metadata(
     //  linker options are prefixed by `-Wl,` or `-Xlinker`
     let metadata_link_arg = match std::env::var("RUSTC_LINKER") {
         Ok(linker) if linker.ends_with("gcc") => format!("-Wl,@{}", metadata_filepath.display()),
-        _ => format!("@{}", metadata_filepath.display())
+        _ => format!("@{}", metadata_filepath.display()),
     };
 
     println!("cargo::rustc-link-arg-bins={}", metadata_link_arg);
