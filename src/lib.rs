@@ -68,9 +68,9 @@ fn task_metadata(config: Option<&str>, _dts: Option<&str>) -> Value {
     metadata["capabilities"] = capabilities;
 
     // Todo:
-    // metadata["devs"] = json!([]);
-    // metadata["shms"] = json!([]);
-    // metadata["dmas"] = json!([]);
+    metadata["devs"] = json!([]);
+    metadata["shms"] = json!([]);
+    metadata["dmas"] = json!([]);
 
     metadata
 }
@@ -83,7 +83,7 @@ pub fn gen_package_metadata(
 ) -> Result<(), Error> {
     let mut package_metadata = json!({"type": "outpost application", "os": "outpost"});
     let version = get_version(name, &introspect).unwrap();
-    let uapi_version = get_version("uapi", &introspect);
+    let uapi_version = get_version("sentry-uapi", &introspect);
     let shield_version = get_version("shield", &introspect);
     let out_var = &env::var("OUT_DIR").unwrap();
     let out_dir = Path::new(&out_var);
