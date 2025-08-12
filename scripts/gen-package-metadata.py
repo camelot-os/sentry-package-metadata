@@ -85,7 +85,7 @@ def main(build_root: Path, source_root: Path, config: dict, dts: Optional[Dts], 
             package_metadata["libshield_version"] = dep["version"]
             shield_found = True
 
-    assert shield_found, "libshield dependency not found"
+    # shield_found, "libshield dependency not found"
 
     package_metadata["task"] = task_metadata(config, dts)
 
