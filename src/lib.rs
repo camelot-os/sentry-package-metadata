@@ -81,7 +81,7 @@ pub fn gen_package_metadata(
     config: Option<&str>,
     _dts: Option<&str>,
 ) -> Result<(), Error> {
-    let mut package_metadata = json!({"type": "outpost application", "os": "outpost"});
+    let mut package_metadata = json!({"type": "camelot application", "os": "sentry"});
     let version = get_version(name, &introspect).unwrap();
     let uapi_version = get_version("sentry-uapi", &introspect);
     let shield_version = get_version("shield", &introspect);
