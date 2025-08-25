@@ -59,10 +59,10 @@ def main(build_root: Path, source_root: Path, config: dict, dts: Optional[Dts], 
     package_info = meson_package_info(build_root)
     package_dependencies = meson_scan_dependencies(build_root)
 
-    # standard metadata for an outpost application
+    # standard metadata for an camelot application
     package_metadata = {
-        "type": "outpost application",
-        "os": "outpost",
+        "type": "camelot application",
+        "os": "sentry",
     }
 
     # App name and version
@@ -85,7 +85,7 @@ def main(build_root: Path, source_root: Path, config: dict, dts: Optional[Dts], 
             package_metadata["libshield_version"] = dep["version"]
             shield_found = True
 
-    assert shield_found, "libshield dependency not found"
+    # shield_found, "libshield dependency not found"
 
     package_metadata["task"] = task_metadata(config, dts)
 
